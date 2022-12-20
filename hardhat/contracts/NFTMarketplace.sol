@@ -101,7 +101,7 @@ contract NFTMarketplace is ERC721URIStorage {
      */
     function createListedToken(uint256 tokenId, uint256 price) private {
         //Make sure the sender sent enough ETH to pay for listing
-        require(msg.value == listPrice, "Hopefully sending the correct price");
+        require(msg.value == listPrice, "Price must be equal to listing price");
         //Just sanity check
         require(price > 0, "Make sure the price isn't negative");
 
@@ -114,7 +114,9 @@ contract NFTMarketplace is ERC721URIStorage {
             true
         );
 
+        // transfer the NFT from seller to marketplace smart contract
         _transfer(msg.sender, address(this), tokenId);
+
         //Emit the event for successful transfer. The frontend parses this message and updates the end user
         emit TokenListedSuccess(
             tokenId,
@@ -124,6 +126,28 @@ contract NFTMarketplace is ERC721URIStorage {
             true
         );
     }
+
+    /**
+     * @dev function to allow Buyer of our marketplace to become seller also.
+     * @param tokenId of NFT
+     * @param price of NFT
+     */
+    function resellToken(uint256 tokenId, uint256 price) public payable{
+        require(idToListedToken[tokenId].owner == msg.sender, "Only item owner can perform this operation");
+        require(
+            msg.value == listPrice,
+            "Price must be equal to listing price"
+        );
+        idToListedToken[tokenId].currentlyListed = false;
+        idToListedToken[tokenId].price = price;
+        idToListedToken[tokenId].seller = payable(msg.sender);
+        idToListedToken[tokenId].owner = payable(address(this));
+        _itemsSold.decrement();
+
+        _transfer(msg.sender, address(this), tokenId);
+
+    }
+
     
     //This will return all the NFTs currently listed to be sold on the marketplace
     function getAllNFTs() public view returns (ListedToken[] memory) {
@@ -171,6 +195,11 @@ contract NFTMarketplace is ERC721URIStorage {
         return items;
     }
 
+    /**
+     * @dev Creates the sale of a marketplace item
+     * Transfers ownership of the item, as well as funds between parties
+     * @param tokenId of the NFT
+     */
     function executeSale(uint256 tokenId) public payable {
         uint price = idToListedToken[tokenId].price;
         address seller = idToListedToken[tokenId].seller;
