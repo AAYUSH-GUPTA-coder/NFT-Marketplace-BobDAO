@@ -5,6 +5,7 @@ const secret = process.env.REACT_APP_PINATA_SECRET;
 const axios = require("axios");
 const FormData = require("form-data");
 
+// uploadJSONToIPFS(JSON): This function takes the entire JSON to be uploaded as input and uploads it to IPFS. The value returned by the function is an IPFS URI which can be queried to get the metadata
 export const uploadJSONToIPFS = async (JSONBody) => {
   const url = `https://api.pinata.cloud/pinning/pinJSONToIPFS`;
   //making axios POST request to Pinata ⬇️
@@ -31,9 +32,10 @@ export const uploadJSONToIPFS = async (JSONBody) => {
     });
 };
 
+// uploadFileToIPFS(): This function uploads the NFT image file to IPFS and then returns an IPFS URL which can be queried to obtain the image.
 export const uploadFileToIPFS = async (file) => {
   const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
-  //making axios POST request to Pinata ⬇️
+  //making axios POST request to Pinata
 
   let data = new FormData();
   data.append("file", file);
