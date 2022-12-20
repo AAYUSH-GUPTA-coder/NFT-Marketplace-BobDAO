@@ -1,4 +1,7 @@
-//SPDX-License-Identifier: Unlicense
+// SPDX-License-Identifier: MIT
+/*
+@author Aayush Gupta. Twiiter: @Aayush_gupta_ji Github: AAYUSH-GUPTA-coder
+ */
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
@@ -219,6 +222,13 @@ contract NFTMarketplace is ERC721URIStorage {
         payable(owner).transfer(listPrice);
         //Transfer the proceeds from the sale to the seller of the NFT
         payable(seller).transfer(msg.value);
+    }
+
+    /**
+     * @dev function to get the balance of the martketplace contract
+     */
+    function getBalance() public view returns (uint256) {
+        return address(this).balance;
     }
 
     /**
